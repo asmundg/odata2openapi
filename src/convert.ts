@@ -481,7 +481,13 @@ function addContainmentPathsRecursive(paths: Paths, entitySet: EntitySet, option
           entityTypePath.indexOf(`/${p.name}`) == -1 ||
           entityTypePath.indexOf(`/${p.name}(`) == -1
       )
-      .forEach(p => {        
+      .forEach(p => {
+        var subPath = `${entityTypePath}/${p.name}`;
+        // Check if the API path is filtered
+        if (options.includePaths && !options.includePaths.some(function (p) { return p === subPath; })) {
+          return;
+        }
+
         if (options.entityTypes) { // Ensure entityTypes is defined (fixes #18)
           if (isCollection(p.type)) {
             // Collection: GET, POST, etc.
@@ -500,7 +506,7 @@ function addContainmentPathsRecursive(paths: Paths, entitySet: EntitySet, option
                 parentTypes
               );
 
-              if (!paths[`${entityTypePath}/${p.name}`]) {
+              if (!paths[subPath]) {
                 pathsRecursive({
                   entitySets: [
                     {
@@ -647,8 +653,13 @@ function addSingletonsToPaths(paths: Paths, options: Options) {
 
 function pathsRecursive({ entitySets, options, oDataVersion, paths, parentPath, parentTypes, parentType }: PathsRecursiveOptions): Paths {
   entitySets.forEach(entitySet => {
+    const entitySetPath = `${parentPath || ""}/${entitySet.name}`;
 
-    const entitySetPath = `${parentPath || ''}/${entitySet.name}`;
+    // Check if the API path is filtered
+    if (options.includePaths && !options.includePaths.some(p => p === entitySetPath)) {
+      return;
+    }
+
     paths[entitySetPath] = entitySetOperations(entitySet, parentTypes, parentType ? entitySetPath : null, oDataVersion);
 
     if (entitySet.entityType.key) {

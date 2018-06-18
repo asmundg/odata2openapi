@@ -8,6 +8,7 @@ export interface Options {
   host: string;
   basePath: string;
   include?: Array<string>;
+  includePaths?: Array<string>;
   complexTypes?: Array<ComplexType>;
   entityTypes?: Array<EntityType>;
   singletons?: Array<Singleton>;
