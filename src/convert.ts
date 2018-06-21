@@ -473,7 +473,7 @@ function addContainmentActionsAndFunctionsBoundToCollectionToPaths(paths: Paths,
 }
 
 function addContainmentPathsRecursive(paths: Paths, entitySet: EntitySet, options: Options, entityTypePath: string, parentPath: string, parentTypes: Array<EntityType>, parentType: EntityType, oDataVersion?: string) {
-  
+
   if (entitySet.entityType.paths) {
     entitySet.entityType.paths
       .filter(
@@ -587,6 +587,32 @@ function addContainmentPathsRecursive(paths: Paths, entitySet: EntitySet, option
                 };
               }
             }
+
+            // Insert NavigationProperties from this EntityType
+            entityType.paths.forEach(_p => {
+              if (isCollection(_p.type)) {
+                var typeName_1 = typeNameFromCollectionType(_p.type);
+                var entityType = options.entityTypes.find(function (et) { return entitySet.namespace + "." + et.name == typeName_1; });
+                if (entityType) {
+                  addContainmentActionsAndFunctionsBoundToCollectionToPaths(paths, _p, entitySet, options, entityTypePath, parentTypes);
+                  pathsRecursive({
+                    entitySets: [
+                      {
+                        name: _p.name,
+                        entityType: entityType,
+                        namespace: entitySet.namespace
+                      }
+                    ],
+                    options: options,
+                    oDataVersion: oDataVersion,
+                    paths: paths,
+                    parentPath: subPath,
+                    parentTypes: parentTypes
+                      ? parentTypes.concat([entitySet.entityType])
+                      : [entitySet.entityType],
+                    parentType: entitySet.entityType
+                  });
+                }}})
           }
         }
       });
