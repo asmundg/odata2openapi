@@ -105,6 +105,12 @@ function defaultEntitySetParameters(oDataVersion: string): Array<Parameter> {
     in: 'query'
   },
   {
+    name: '$search',
+    type: 'string',
+    required: false,
+    in: 'query'
+  },
+  {
     name: oDataVersion == '4.0' ? '$count' : '$inlinecount',
     type: oDataVersion == '4.0' ? 'boolean' : 'string',
     required: false,
@@ -243,6 +249,13 @@ function entitySetParameters(typeAnnotations: Array<any>, parentTypes: Array<Ent
         const orderbyIndex = parameters.findIndex(p => p.name == '$orderby');
         if (orderbyIndex != -1) {
           parameters.splice(orderbyIndex, 1);
+        }
+      }
+
+      if (a.indexOf('SearchRestrictions') != -1) {
+        const searchIndex = parameters.findIndex(p => p.name == '$search');
+        if (searchIndex != -1) {
+          parameters.splice(searchIndex, 1);
         }
       }
     });
